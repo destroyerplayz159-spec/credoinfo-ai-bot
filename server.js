@@ -2,17 +2,23 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 require('dotenv').config();
-const { Configuration, OpenAIApi } = require('openai');
+const { OpenAI } = require('openai');
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-const { OpenAI } = require('openai');
+// Initialize OpenAI with your API key
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Health check route for Render
+app.get('/', (req, res) => {
+  res.send('🟢 CredoAI Bot Server is running');
+});
+
+// Main AI chat route
 app.post('/ask', async (req, res) => {
   const userPrompt = req.body.prompt;
   const systemPrompt = `
@@ -22,7 +28,7 @@ Give future outlooks if asked. Be informative but easy to understand.
 `;
 
   try {
-    const completion = await openai.createChatCompletion({
+    const completion = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: [
         { role: 'system', content: systemPrompt },
@@ -30,12 +36,15 @@ Give future outlooks if asked. Be informative but easy to understand.
       ],
     });
 
-    res.json({ reply: completion.data.choices[0].message.content });
+    res.json({ reply: completion.choices[0].message.content });
   } catch (err) {
+    console.error('❌ Error generating response:', err);
     res.status(500).json({ error: 'Error fetching AI response' });
   }
 });
 
-app.listen(3000, () => {
-  console.log('✅ CredoAI bot server running at http://localhost:3000');
+// Use dynamic port for Render
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`✅ CredoAI bot server running at http://localhost:${PORT}`);
 });
