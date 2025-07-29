@@ -8,9 +8,10 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-const openai = new OpenAIApi(new Configuration({
+const { OpenAI } = require('openai');
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-}));
+});
 
 app.post('/ask', async (req, res) => {
   const userPrompt = req.body.prompt;
