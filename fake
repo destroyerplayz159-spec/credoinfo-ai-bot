@@ -1,0 +1,13 @@
+import OpenAI from "openai";
+
+const openai = new OpenAI({
+  apiKey: "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",
+});
+
+const response = openai.responses.create({
+  model: "gpt-4o-mini",
+  input: "write a haiku about ai",
+  store: true,
+});
+
+response.then((result) => console.log(result.output_text));
